@@ -4,4 +4,6 @@ asdf
 class {
 
 }
-void
+void {
+	
+}
