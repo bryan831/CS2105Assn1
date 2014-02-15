@@ -1,87 +1,12 @@
-import java.util.*;
-import java.net.*;
-import java.io.*;
+class Connection {
 
-/*A0088135B
-* A0120802Y
-* CS2105
-* Webserver.java
-*/
-
-class WebServer {
-
-	private int listenPort;
-	private ServerSocket serverSocket = null;
-
-	//the constructor:
-	public WebServer (int portIn) {
-		listenPort = portIn;
-
-		System.out.println("In the WebServer now.");
-		System.out.println("Creating ServerSocket...");
-		try {
-			serverSocket = new ServerSocket(listenPort);
-		}
-		catch (IOException e)
-		{
-			System.err.println("Unable to listen on port " + listenPort + ": " + e.getMessage());
-			return;
-		}
-	// Keep accepting connections from clients until the server is terminated.
-		while (true) {
-			try
-			{
-				Socket socket1;
-				socket1 = serverSocket.accept();
-				System.out.println("Connection accepted.");
-				new Connection(socket1);
-				
-				//continue;
-			}
-			catch (IOException ioE)
-			{
-				System.err.println("Unable to accept connection on port:" + listenPort);
-				continue;
-			}	
-
-			}	
-		}
-	//the main function, program begins here
-	public static void main (String portNum[]) throws Exception {
-		
-		int port;
-		try {									//try to set port to the port entered in command line
-			if (portNum.length ==1)
-				port = new Integer(portNum[0]);
-			else {
-				System.out.println("Please enter port number.");
-
-				return;
-			}
-
-		}
-		catch (Exception portNumException) {	//if not, sets port to the default of 8789
-			port = new Integer(8789);
-			System.out.println("Default port number of 8789 assigned.");
-		}
-		System.out.println("WebServer set up with port number: " + port);
-		WebServer ws = new WebServer(port);
-		
-		
-		return;
-	}	//end of main fn
-
-}	//end of WebServer class
-
-class Connection 
-{
+	Socket socket;
 	String filename;
 	File file;
 	static String WEB_ROOT = "";
-	public Connection (Socket socketIn) 
-	{	//constructor for the Connection class
-		Socket socket;
-		//connection has been accepted, set up the input and output streams 
+
+	public Connection (Socket socketIn) {
+	//connection has been accepted, set up the input and output streams 
 		socket = socketIn;
 		try 
 		{
@@ -93,21 +18,22 @@ class Connection
 			System.out.println("Your IS, BR, OS, and DOS have been set up.");
 
 			//start reading lines from the socket
+			String line = br.readLine();
+			String tokens[] = line.split(" ");
 			while (true)
 			{
-				String line = br.readLine();
+				//String line = br.readLine();
 
-				String tokens[] = line.split(" ");
+				//String tokens[] = line.split(" ");
 
-				//if the first token is NOT GET AND NOT POST
-				if (!tokens[0].equals("GET") && !tokens[0].equals("POST"))
+				if (!tokens[0].equals("GET") || !tokens[0].equals("POST"))
 				{
 					String errorMessage = "This simplistic server only understand GET or POST request\r\n";
 					dos.writeBytes("HTTP/1.1 400 Bad Request\r\n");
 					dos.writeBytes("Content-length: " + errorMessage.length() + "\r\n\r\n");
 					dos.writeBytes(errorMessage);
 					socket.close();
-					continue;
+				//	continue;
 				}
 				if (line == null)
 				{
@@ -115,10 +41,11 @@ class Connection
 					socket.close();
 					return;
 				}
-				if (tokens[0].equals("GET") && (tokens.length>1))	//if first token is GET, and length>1, assume token[1] is filename 
+				if (tokens[0].equals("GET") && (tokens.length>1)) 
 				{
 					System.out.println("GET " + tokens[1]);
-					filename = WEB_ROOT + tokens[1];
+					//filename = WEB_ROOT + tokens[1];
+					filename = tokens[1];
 					file = new File(filename);
 					System.out.println("M here posz");
 					if (!file.exists()) 
@@ -149,7 +76,7 @@ class Connection
 					System.out.println("got here y");
 					//at this point, everything is OK
 					dos.writeBytes("HTTP/1.1 200 OK\r\n");
-					System.out.println("did that^");
+
 					//send back content length
 					dos.writeBytes("Content-length: " + file.length() + "\r\n");
 					//send back content type:
@@ -198,10 +125,13 @@ class Connection
 				System.out.println("192");
 				return;
 			}
-		}	//end of try
+		}
 		catch (IOException e)
 		{
+			System.out.println("198");
 			System.err.println("Unable to read/write: " + e.getMessage());
 		}
-	}	//end of constructor
-}	//end of Class Connection
+	//end of constructor
+	}
+//end of class Connection
+}
