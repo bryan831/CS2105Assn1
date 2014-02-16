@@ -188,12 +188,44 @@ class Connection
 		{
 			filename = WEB_ROOT + tokens[1];
 			file = new File(filename);
+			Process p;
 
 			//first check if the file requested is the dynamic Perl script
-			if (filename.endsWith(".pl"))
+			if (filename.endsWith(".pl"))		//request is GET, the perl script
 			{
 				//need to execute the Perl script instead of sending the content back
+				//on UNIX server:
+				//p = Runtime.getRuntime().exec("/usr/bin/perl /home/b/bryan831/a1/" + filename);
 
+				//on local machine
+				p = Runtime.getRuntime().exec("/usr/bin/perl " + filename);
+				//write to process std input
+				DataOutputStream po = new DataOutputStream(p.getOutputStream());
+				//po.writeBytes("");
+
+				//get output from the process
+				InputStream pIS = p.getInputStream();
+				BufferedReader pBR = new BufferedReader(new InputStreamReader(pIS));
+				String pLine;
+
+
+				//at this point, everything is OK
+				dos.writeBytes("HTTP/1.1 200 OK\r\n");
+				//send back content length
+				dos.writeBytes("Content-length: " + file.length() + "\r\n");
+
+				pLine = pBR.readLine();
+				System.out.println("Read 1 line from the process");
+				while (pLine != null)
+				{
+					System.out.println("Reading lines from process");
+					dos.writeBytes(pLine);
+					pLine = pBR.readLine();
+				}
+				dos.flush();
+				//complete:
+				socket.close();
+				return;
 			}
 
 
