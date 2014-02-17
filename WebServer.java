@@ -186,7 +186,8 @@ class Connection
 	{	//the handleGet function handles the HTTP GET requests in Connection class
 		try 
 		{
-			filename = WEB_ROOT + tokens[1];
+			if (tokens[1] )
+			filename = WEB_ROOT + tokens[1];	//    todo.pl
 			file = new File(filename);
 			Process p;
 
